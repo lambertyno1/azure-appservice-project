@@ -6,8 +6,9 @@ on:
 
 env:
   # UPDATE THESE TO MATCH YOUR EXACT AZURE RESOURCES
-  ACR_NAME: acrprojectapp
-  APP_NAME: web-app-project
+env:
+  ACR_NAME: acrprojectapp.azurecr.io  <-- Must include .azurecr.io
+  APP_NAME: web-app-project-dkajc3bkacggg8dw
   RESOURCE_GROUP: rg-project-app
 
 jobs:
