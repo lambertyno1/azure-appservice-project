@@ -6,14 +6,14 @@ on:
 
 env:
   ACR_NAME: acrprojectapp.azurecr.io
-  APP_NAME: web-app-project-dkajc3bkacggg8dw
+  APP_NAME: web-app-project
   RESOURCE_GROUP: rg-project-app
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run Tests
         run: echo "Running automated tests..."
 
@@ -21,17 +21,17 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Login to ACR
         uses: azure/docker-login@v1
         with:
-          login-server: ${{ env.ACR_NAME }}.azurecr.io
+          login-server: ${{ env.ACR_NAME }}
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
       - name: Build and push Docker image
         run: |
-          docker build -t ${{ env.ACR_NAME }}.azurecr.io/app:${{ github.sha }} .
-          docker push ${{ env.ACR_NAME }}.azurecr.io/app:${{ github.sha }}
+          docker build -t ${{ env.ACR_NAME }}/app:${{ github.sha }} .
+          docker push ${{ env.ACR_NAME }}/app:${{ github.sha }}
 
   deploy-staging:
     needs: build-and-push
@@ -43,9 +43,9 @@ jobs:
           app-name: ${{ env.APP_NAME }}
           slot-name: staging
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-          images: '${{ env.ACR_NAME }}.azurecr.io/app:${{ github.sha }}'
+          images: '${{ env.ACR_NAME }}/app:${{ github.sha }}'
 
-      - name: Azure login (for the hostname lookup below)
+      - name: Azure login (for hostname lookup)
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
