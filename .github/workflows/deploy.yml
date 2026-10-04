@@ -43,11 +43,15 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy to Staging Slot
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ env.APP_NAME }}
-          slot-name: staging
-          images: '${{ env.ACR_NAME }}/app:${{ github.sha }}'
+        run: |
+          az webapp config container set \
+            --name ${{ env.APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --slot staging \
+            --docker-custom-image-name ${{ env.ACR_NAME }}/app:${{ github.sha }} \
+            --docker-registry-server-url https://${{ env.ACR_NAME }} \
+            --docker-registry-server-user ${{ secrets.ACR_USERNAME }} \
+            --docker-registry-server-password ${{ secrets.ACR_PASSWORD }}
 
       - name: Health Check
         run: |
