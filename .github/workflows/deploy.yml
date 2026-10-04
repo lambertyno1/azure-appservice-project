@@ -52,8 +52,13 @@ jobs:
       - name: Health Check
         run: |
           HOST=$(az webapp show -g ${{ env.RESOURCE_GROUP }} -n ${{ env.APP_NAME }} --slot staging --query defaultHostName -o tsv)
-          sleep 30
-          curl -f https://$HOST/health || exit 1
+          for i in $(seq 1 15); do
+            curl -sf https://$HOST/health && exit 0
+            echo "Not ready yet (attempt $i), waiting 15s..."
+            sleep 15
+          done
+          echo "Staging never became healthy"
+          exit 1
 
   swap-to-production:
     needs: deploy-staging
