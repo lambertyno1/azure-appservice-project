@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Ticket Booking</title>
+    <style>
+        :root { --primary: #0078d4; --bg: #f3f2f1; --card: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #323130; }
+        .container { max-width: 900px; margin: 0 auto; }
+        header { background: var(--primary); color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .card { background: var(--card); padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h2 { color: var(--primary); margin-top: 0; }
+        button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 600; }
+        button:hover { background: #005a9e; }
+        button.secondary { background: #605e5c; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #8a8886; border-radius: 4px; box-sizing: border-box; }
+        .event-item { border-bottom: 1px solid #edebe9; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+        .event-item:last-child { border-bottom: none; }
+        .status { padding: 10px; border-radius: 4px; margin-top: 10px; font-weight: bold; }
+        .success { background: #dff6dd; color: #107c10; }
+        .error { background: #fde7e9; color: #a80000; }
+        .hidden { display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #edebe9; }
+        th { background: #f3f2f1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎟️ DevOps Ticket Booking System</h1>
+            <p id="user-status">Please log in to book tickets</p>
+        </header>
+
+        <!-- LOGIN -->
+        <div id="login-section" class="card">
+            <h2>🔐 Login</h2>
+            <p><i>Demo Credentials: <b>admin</b> / <b>password123</b> OR <b>user</b> / <b>password123</b></i></p>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="login()">Login</button>
+            <div id="login-msg"></div>
+        </div>
+
+        <!-- BOOKING -->
+        <div id="booking-section" class="card hidden">
+            <h2>📅 Available Events</h2>
+            <div id="events-list">Loading events from database...</div>
+            
+            <h2 style="margin-top: 30px;">🎟️ Book a Ticket</h2>
+            <select id="event-select"></select>
+            <input type="text" id="booker-name" placeholder="Full Name">
+            <input type="email" id="booker-email" placeholder="Email Address">
+            <button onclick="bookTicket()">Confirm Booking</button>
+            <div id="booking-msg"></div>
+        </div>
+
+        <!-- ADMIN DASHBOARD -->
+        <div id="admin-section" class="card hidden">
+            <h2>🛡️ Admin Dashboard</h2>
+            <p>View all database records:</p>
+            <button onclick="loadAdminData()">Refresh Database View</button>
+            <div id="admin-view"></div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = '';
+        let userRole = '';
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            
+            const data = await res.json();
+            if (res.ok) {
+                authToken = data.token;
+                userRole = data.role;
+                document.getElementById('user-status').innerText = `Logged in as: ${data.username} (${data.role})`;
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('booking-section').classList.remove('hidden');
+                if (userRole === 'admin') document.getElementById('admin-section').classList.remove('hidden');
+                loadEvents();
+            } else {
+                showMsg('login-msg', data.error, 'error');
+            }
+        }
+
+        async function loadEvents() {
+            const res = await fetch('/api/events');
+            const data = await res.json();
+            const list = document.getElementById('events-list');
+            const select = document.getElementById('event-select');
+            
+            list.innerHTML = '';
+            select.innerHTML = '<option value="">-- Select an Event --</option>';
+            
+            data.data.forEach(event => {
+                list.innerHTML += `<div class="event-item"><div><strong>${event.name}</strong><br><small>${event.date}</small></div><div>${event.availableSeats} seats left</div></div>`;
+                select.innerHTML += `<option value="${event.id}">${event.name} (${event.availableSeats} left)</option>`;
+            });
+        }
+
+        async function bookTicket() {
+            const eventId = parseInt(document.getElementById('event-select').value);
+            const userName = document.getElementById('booker-name').value;
+            const userEmail = document.getElementById('booker-email').value;
+            
+            if(!eventId || !userName) return showMsg('booking-msg', 'Please fill all fields', 'error');
+
+            const res = await fetch('/api/bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                body: JSON.stringify({ eventId, userName, userEmail })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                showMsg('booking-msg', `Success! Booking confirmed for ${data.data.eventName}`, 'success');
+                loadEvents();
+            } else {
+                showMsg('booking-msg', data.error, 'error');
+            }
+        }
+
+        async function loadAdminData() {
+            const res = await fetch('/api/admin/bookings', {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            const data = await res.json();
+            
+            if (res.ok) {
+                let html = `<p>Total Bookings in DB: <strong>${data.totalBookings}</strong></p>`;
+                if (data.data.length > 0) {
+                    html += `<table><tr><th>ID</th><th>User</th><th>Event</th><th>Date</th></tr>`;
+                    data.data.forEach(b => {
+                        html += `<tr><td>${b.id}</td><td>${b.userName}</td><td>${b.eventName}</td><td>${b.bookedAt}</td></tr>`;
+                    });
+                    html += `</table>`;
+                } else {
+                    html += `<p>No bookings yet.</p>`;
+                }
+                document.getElementById('admin-view').innerHTML = html;
+            } else {
+                document.getElementById('admin-view').innerHTML = `<div class="status error">${data.error}</div>`;
+            }
+        }
+
+        function showMsg(id, text, type) {
+            const el = document.getElementById(id);
+            el.innerText = text;
+            el.className = `status ${type}`;
+        }
+    </script>
+</body>
+</html>
