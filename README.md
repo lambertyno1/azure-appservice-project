@@ -1,0 +1,1 @@
+- Added request logging middleware for Azure monitoring.
