@@ -13,10 +13,10 @@
         h2 { color: var(--primary); margin-top: 0; }
         button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 600; }
         button:hover { background: #005a9e; }
+        button.secondary { background: #605e5c; }
         input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #8a8886; border-radius: 4px; box-sizing: border-box; }
         .event-item { border-bottom: 1px solid #edebe9; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
         .event-item:last-child { border-bottom: none; }
-        .badge { background: #e1dfdd; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; color: #323130; }
         .status { padding: 10px; border-radius: 4px; margin-top: 10px; font-weight: bold; }
         .success { background: #dff6dd; color: #107c10; }
         .error { background: #fde7e9; color: #a80000; }
@@ -29,8 +29,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>️ DevOps Ticket Booking System</h1>
-            <!-- Status text removed permanently -->
+            <h1>🎟️ DevOps Ticket Booking System</h1>
+            <p id="user-status">Please log in to book tickets</p>
         </header>
 
         <!-- LOGIN -->
@@ -83,7 +83,7 @@
             if (res.ok) {
                 authToken = data.token;
                 userRole = data.role;
-                // Status text update removed here
+                document.getElementById('user-status').innerText = `Logged in as: ${data.username} (${data.role})`;
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('booking-section').classList.remove('hidden');
                 if (userRole === 'admin') document.getElementById('admin-section').classList.remove('hidden');
@@ -103,8 +103,8 @@
             select.innerHTML = '<option value="">-- Select an Event --</option>';
             
             data.data.forEach(event => {
-                list.innerHTML += `<div class="event-item"><div><strong>${event.name}</strong><br><small><span class="badge">${event.category}</span> ${event.date}</small></div><div><strong>$${event.price}</strong> | ${event.availableSeats} left</div></div>`;
-                select.innerHTML += `<option value="${event.id}">${event.name} - $${event.price} (${event.availableSeats} left)</option>`;
+                list.innerHTML += `<div class="event-item"><div><strong>${event.name}</strong><br><small>${event.date}</small></div><div>${event.availableSeats} seats left</div></div>`;
+                select.innerHTML += `<option value="${event.id}">${event.name} (${event.availableSeats} left)</option>`;
             });
         }
 
@@ -123,7 +123,7 @@
 
             const data = await res.json();
             if (res.ok) {
-                showMsg('booking-msg', `Success! Booked for ${data.data.eventName} ($${data.data.price})`, 'success');
+                showMsg('booking-msg', `Success! Booking confirmed for ${data.data.eventName}`, 'success');
                 loadEvents();
             } else {
                 showMsg('booking-msg', data.error, 'error');
@@ -139,9 +139,9 @@
             if (res.ok) {
                 let html = `<p>Total Bookings in DB: <strong>${data.totalBookings}</strong></p>`;
                 if (data.data.length > 0) {
-                    html += `<table><tr><th>ID</th><th>User</th><th>Email</th><th>Event</th><th>Category</th><th>Price</th><th>Date</th></tr>`;
+                    html += `<table><tr><th>ID</th><th>User</th><th>Event</th><th>Date</th></tr>`;
                     data.data.forEach(b => {
-                        html += `<tr><td>${b.id}</td><td>${b.userName}</td><td>${b.userEmail}</td><td>${b.eventName}</td><td><span class="badge">${b.category}</span></td><td>$${b.price}</td><td>${b.bookedAt}</td></tr>`;
+                        html += `<tr><td>${b.id}</td><td>${b.userName}</td><td>${b.eventName}</td><td>${b.bookedAt}</td></tr>`;
                     });
                     html += `</table>`;
                 } else {
