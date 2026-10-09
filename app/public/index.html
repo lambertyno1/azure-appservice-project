@@ -29,7 +29,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>🎟️ DevOps Ticket Booking System</h1>
+            <h1>️ DevOps Ticket Booking System</h1>
+            <!-- Status text removed permanently -->
         </header>
 
         <!-- LOGIN -->
@@ -82,7 +83,7 @@
             if (res.ok) {
                 authToken = data.token;
                 userRole = data.role;
-                // Removed the user-status text update
+                // Status text update removed here
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('booking-section').classList.remove('hidden');
                 if (userRole === 'admin') document.getElementById('admin-section').classList.remove('hidden');
@@ -112,7 +113,7 @@
             const userName = document.getElementById('booker-name').value;
             const userEmail = document.getElementById('booker-email').value;
             
-            if(!eventId || !userName) return showMsg('booking-msg', 'Please fill all fields', 'error');
+            if(!eventId || !userName || !userEmail) return showMsg('booking-msg', 'Please fill all fields', 'error');
 
             const res = await fetch('/api/bookings', {
                 method: 'POST',
@@ -138,9 +139,9 @@
             if (res.ok) {
                 let html = `<p>Total Bookings in DB: <strong>${data.totalBookings}</strong></p>`;
                 if (data.data.length > 0) {
-                    html += `<table><tr><th>ID</th><th>User</th><th>Event</th><th>Category</th><th>Price</th><th>Date</th></tr>`;
+                    html += `<table><tr><th>ID</th><th>User</th><th>Email</th><th>Event</th><th>Category</th><th>Price</th><th>Date</th></tr>`;
                     data.data.forEach(b => {
-                        html += `<tr><td>${b.id}</td><td>${b.userName}</td><td>${b.eventName}</td><td><span class="badge">${b.category}</span></td><td>$${b.price}</td><td>${b.bookedAt}</td></tr>`;
+                        html += `<tr><td>${b.id}</td><td>${b.userName}</td><td>${b.userEmail}</td><td>${b.eventName}</td><td><span class="badge">${b.category}</span></td><td>$${b.price}</td><td>${b.bookedAt}</td></tr>`;
                     });
                     html += `</table>`;
                 } else {

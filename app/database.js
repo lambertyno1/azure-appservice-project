@@ -18,6 +18,12 @@ const database = {
     if (!event) throw new Error('Event not found');
     if (event.bookedSeats >= event.totalSeats) throw new Error('Event is sold out');
 
+    // --- NEW: CHECK FOR DUPLICATE BOOKING ---
+    const isDuplicate = db.bookings.some(b => b.eventId === eventId && b.userEmail === userEmail);
+    if (isDuplicate) {
+        throw new Error('This email has already booked this event.');
+    }
+
     const booking = {
       id: Date.now(),
       eventId,
