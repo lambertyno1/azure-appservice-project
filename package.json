@@ -1,16 +1,17 @@
 {
-  "name": "azure-appservice-project",
+  "name": "project-3-azure-app-service",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Production-ready CI/CD pipeline for Azure App Service",
+  "main": "app/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app/server.js",
+    "test": "jest"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }
