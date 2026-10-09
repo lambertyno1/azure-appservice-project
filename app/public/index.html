@@ -113,7 +113,7 @@
             const userName = document.getElementById('booker-name').value;
             const userEmail = document.getElementById('booker-email').value;
             
-            if(!eventId || !userName) return showMsg('booking-msg', 'Please fill all fields', 'error');
+            if(!eventId || !userName || !userEmail) return showMsg('booking-msg', 'Please fill all fields', 'error');
 
             const res = await fetch('/api/bookings', {
                 method: 'POST',
