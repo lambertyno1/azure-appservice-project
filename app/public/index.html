@@ -3,272 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Azure DevOps Project - Production App</title>
+    <title>DevOps Ticket Booking</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #e2e8f0;
-            min-height: 100vh;
-            line-height: 1.6;
-        }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-        
-        /* Header */
-        header {
-            text-align: center;
-            padding: 3rem 0;
-            border-bottom: 1px solid #334155;
-            margin-bottom: 3rem;
-        }
-        header h1 {
-            font-size: 3rem;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
-        }
-        header p { color: #94a3b8; font-size: 1.2rem; }
-        .status-badge {
-            display: inline-block;
-            background: #10b981;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-            font-weight: 600;
-        }
-        
-        /* Cards Grid */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-        .card {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 2rem;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
-            border-color: #3b82f6;
-        }
-        .card h3 {
-            color: #3b82f6;
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
-        }
-        .card p { color: #94a3b8; margin-bottom: 1.5rem; }
-        .card .endpoint {
-            background: #0f172a;
-            padding: 0.75rem;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            color: #10b981;
-            margin-bottom: 1rem;
-        }
-        .btn {
-            display: inline-block;
-            background: #3b82f6;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: background 0.3s;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        .btn:hover { background: #2563eb; }
-        .btn-secondary { background: #64748b; }
-        .btn-secondary:hover { background: #475569; }
-        
-        /* Response Box */
-        .response-box {
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-            color: #10b981;
-            max-height: 200px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            display: none;
-        }
-        
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 2rem 0;
-            border-top: 1px solid #334155;
-            color: #64748b;
-        }
-        footer a { color: #3b82f6; text-decoration: none; }
-        
-        /* Login Form */
-        .login-form { display: flex; flex-direction: column; gap: 0.75rem; }
-        .login-form input {
-            background: #0f172a;
-            border: 1px solid #334155;
-            color: #e2e8f0;
-            padding: 0.75rem;
-            border-radius: 6px;
-            font-size: 1rem;
-        }
-        .login-form input:focus { outline: none; border-color: #3b82f6; }
+        :root { --primary: #0078d4; --bg: #f3f2f1; --card: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #323130; }
+        .container { max-width: 900px; margin: 0 auto; }
+        header { background: var(--primary); color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .card { background: var(--card); padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h2 { color: var(--primary); margin-top: 0; }
+        button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 600; }
+        button:hover { background: #005a9e; }
+        button.secondary { background: #605e5c; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #8a8886; border-radius: 4px; box-sizing: border-box; }
+        .event-item { border-bottom: 1px solid #edebe9; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+        .event-item:last-child { border-bottom: none; }
+        .status { padding: 10px; border-radius: 4px; margin-top: 10px; font-weight: bold; }
+        .success { background: #dff6dd; color: #107c10; }
+        .error { background: #fde7e9; color: #a80000; }
+        .hidden { display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #edebe9; }
+        th { background: #f3f2f1; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🚀 Azure DevOps Project</h1>
-            <p>Production-Ready CI/CD Pipeline with Zero-Downtime Deployments</p>
-            <div class="status-badge" id="statusBadge">Checking status...</div>
+            <h1>🎟️ DevOps Ticket Booking System</h1>
+            <p id="user-status">Please log in to book tickets</p>
         </header>
 
-        <div class="grid">
-            <!-- Health Check Card -->
-            <div class="card">
-                <h3>🏥 Health Check</h3>
-                <p>Verifies the application is running and responsive. Used as a quality gate before production deployment.</p>
-                <div class="endpoint">GET /health</div>
-                <button class="btn" onclick="testEndpoint('/health', 'healthResponse')">Test Endpoint</button>
-                <div class="response-box" id="healthResponse"></div>
-            </div>
-
-            <!-- REST API Card -->
-            <div class="card">
-                <h3> REST API</h3>
-                <p>Returns JSON data and verifies database connectivity through environment variables.</p>
-                <div class="endpoint">GET /api/data</div>
-                <button class="btn" onclick="testEndpoint('/api/data', 'apiResponse')">Test Endpoint</button>
-                <div class="response-box" id="apiResponse"></div>
-            </div>
-
-            <!-- Authentication Card -->
-            <div class="card">
-                <h3>🔐 Authentication</h3>
-                <p>Mock login endpoint that generates a JWT token. Use credentials: admin / password</p>
-                <div class="endpoint">POST /login</div>
-                <div class="login-form">
-                    <input type="text" id="username" placeholder="Username (admin)" value="admin">
-                    <input type="password" id="password" placeholder="Password (password)" value="password">
-                    <button class="btn" onclick="testLogin()">Login</button>
-                </div>
-                <div class="response-box" id="loginResponse"></div>
-            </div>
-
-            <!-- Admin Dashboard Card -->
-            <div class="card">
-                <h3>👑 Admin Dashboard</h3>
-                <p>Protected route requiring a valid Bearer token. Shows database connection status.</p>
-                <div class="endpoint">GET /admin</div>
-                <button class="btn btn-secondary" onclick="testAdmin()">Access Admin</button>
-                <div class="response-box" id="adminResponse"></div>
-            </div>
+        <!-- LOGIN -->
+        <div id="login-section" class="card">
+            <h2>🔐 Login</h2>
+            <p><i>Demo Credentials: <b>admin</b> / <b>password123</b> OR <b>user</b> / <b>password123</b></i></p>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="login()">Login</button>
+            <div id="login-msg"></div>
         </div>
 
-        <footer>
-            <p>Built with Node.js, Express, Docker, and Azure App Service | 
-            <a href="https://github.com/lambertyno1/azure-appservice-project" target="_blank">View on GitHub</a></p>
-        </footer>
+        <!-- BOOKING -->
+        <div id="booking-section" class="card hidden">
+            <h2>📅 Available Events</h2>
+            <div id="events-list">Loading events from database...</div>
+            
+            <h2 style="margin-top: 30px;">🎟️ Book a Ticket</h2>
+            <select id="event-select"></select>
+            <input type="text" id="booker-name" placeholder="Full Name">
+            <input type="email" id="booker-email" placeholder="Email Address">
+            <button onclick="bookTicket()">Confirm Booking</button>
+            <div id="booking-msg"></div>
+        </div>
+
+        <!-- ADMIN DASHBOARD -->
+        <div id="admin-section" class="card hidden">
+            <h2>🛡️ Admin Dashboard</h2>
+            <p>View all database records:</p>
+            <button onclick="loadAdminData()">Refresh Database View</button>
+            <div id="admin-view"></div>
+        </div>
     </div>
 
     <script>
-        // Check health on load
-        window.onload = () => {
-            fetch('/health')
-                .then(r => r.json())
-                .then(data => {
-                    document.getElementById('statusBadge').textContent = '✅ System Healthy';
-                })
-                .catch(() => {
-                    document.getElementById('statusBadge').textContent = '️ System Unhealthy';
-                    document.getElementById('statusBadge').style.background = '#ef4444';
-                });
-        };
+        let authToken = '';
+        let userRole = '';
 
-        // Generic endpoint tester
-        function testEndpoint(endpoint, responseId) {
-            const box = document.getElementById(responseId);
-            box.style.display = 'block';
-            box.textContent = 'Loading...';
-            
-            fetch(endpoint)
-                .then(r => r.json())
-                .then(data => {
-                    box.textContent = JSON.stringify(data, null, 2);
-                })
-                .catch(err => {
-                    box.textContent = 'Error: ' + err.message;
-                    box.style.color = '#ef4444';
-                });
-        }
-
-        // Login test
-        function testLogin() {
-            const box = document.getElementById('loginResponse');
-            box.style.display = 'block';
-            box.textContent = 'Authenticating...';
-            
+        async function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
-            fetch('/login', {
+            const res = await fetch('/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
-            })
-            .then(r => r.json())
-            .then(data => {
-                box.textContent = JSON.stringify(data, null, 2);
-                if (data.token) {
-                    localStorage.setItem('token', data.token);
-                    box.textContent += '\n\n✅ Token saved! You can now access /admin';
-                }
-            })
-            .catch(err => {
-                box.textContent = 'Error: ' + err.message;
-                box.style.color = '#ef4444';
+            });
+            
+            const data = await res.json();
+            if (res.ok) {
+                authToken = data.token;
+                userRole = data.role;
+                document.getElementById('user-status').innerText = `Logged in as: ${data.username} (${data.role})`;
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('booking-section').classList.remove('hidden');
+                if (userRole === 'admin') document.getElementById('admin-section').classList.remove('hidden');
+                loadEvents();
+            } else {
+                showMsg('login-msg', data.error, 'error');
+            }
+        }
+
+        async function loadEvents() {
+            const res = await fetch('/api/events');
+            const data = await res.json();
+            const list = document.getElementById('events-list');
+            const select = document.getElementById('event-select');
+            
+            list.innerHTML = '';
+            select.innerHTML = '<option value="">-- Select an Event --</option>';
+            
+            data.data.forEach(event => {
+                list.innerHTML += `<div class="event-item"><div><strong>${event.name}</strong><br><small>${event.date}</small></div><div>${event.availableSeats} seats left</div></div>`;
+                select.innerHTML += `<option value="${event.id}">${event.name} (${event.availableSeats} left)</option>`;
             });
         }
 
-        // Admin test
-        function testAdmin() {
-            const box = document.getElementById('adminResponse');
-            box.style.display = 'block';
-            box.textContent = 'Accessing admin...';
+        async function bookTicket() {
+            const eventId = parseInt(document.getElementById('event-select').value);
+            const userName = document.getElementById('booker-name').value;
+            const userEmail = document.getElementById('booker-email').value;
             
-            const token = localStorage.getItem('token');
-            if (!token) {
-                box.textContent = '️ No token found. Please login first.';
-                box.style.color = '#f59e0b';
-                return;
-            }
-            
-            fetch('/admin', {
-                headers: { 'Authorization': 'Bearer ' + token }
-            })
-            .then(r => r.text())
-            .then(data => {
-                box.textContent = data;
-            })
-            .catch(err => {
-                box.textContent = 'Error: ' + err.message;
-                box.style.color = '#ef4444';
+            if(!eventId || !userName) return showMsg('booking-msg', 'Please fill all fields', 'error');
+
+            const res = await fetch('/api/bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                body: JSON.stringify({ eventId, userName, userEmail })
             });
+
+            const data = await res.json();
+            if (res.ok) {
+                showMsg('booking-msg', `Success! Booking confirmed for ${data.data.eventName}`, 'success');
+                loadEvents();
+            } else {
+                showMsg('booking-msg', data.error, 'error');
+            }
+        }
+
+        async function loadAdminData() {
+            const res = await fetch('/api/admin/bookings', {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            const data = await res.json();
+            
+            if (res.ok) {
+                let html = `<p>Total Bookings in DB: <strong>${data.totalBookings}</strong></p>`;
+                if (data.data.length > 0) {
+                    html += `<table><tr><th>ID</th><th>User</th><th>Event</th><th>Date</th></tr>`;
+                    data.data.forEach(b => {
+                        html += `<tr><td>${b.id}</td><td>${b.userName}</td><td>${b.eventName}</td><td>${b.bookedAt}</td></tr>`;
+                    });
+                    html += `</table>`;
+                } else {
+                    html += `<p>No bookings yet.</p>`;
+                }
+                document.getElementById('admin-view').innerHTML = html;
+            } else {
+                document.getElementById('admin-view').innerHTML = `<div class="status error">${data.error}</div>`;
+            }
+        }
+
+        function showMsg(id, text, type) {
+            const el = document.getElementById(id);
+            el.innerText = text;
+            el.className = `status ${type}`;
         }
     </script>
 </body>
