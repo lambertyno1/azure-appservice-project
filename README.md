@@ -1,4 +1,3 @@
-cat > README.md << 'EOF'
 # ☁️ DevOps Ticket Booking System
 
 [![CI/CD Pipeline](https://github.com/lambertyno1/azure-appservice-project/actions/workflows/deploy.yml/badge.svg)](https://github.com/lambertyno1/azure-appservice-project/actions/workflows/deploy.yml)
