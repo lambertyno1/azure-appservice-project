@@ -1,6 +1,13 @@
+# =============================================================================
+# WORKFLOW NAME: Displays on the GitHub Actions tab of the repository.
+# =============================================================================
 name: CI/CD Pipeline
 
+# =============================================================================
+# TRIGGERS: Defines the events that cause this workflow to start running.
+# =============================================================================
 on:
+# Triggers the workflow when code is pushed to these specific branches
   push:
     branches: [ main ]
 
@@ -9,6 +16,10 @@ env:
   APP_NAME: web-app-project
   RESOURCE_GROUP: rg-project-app
 
+
+# =============================================================================
+# JOBS: The core automation tasks. Jobs run in parallel by default.
+# =============================================================================
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
