@@ -12,11 +12,12 @@ This diagram illustrates the complete flow of the application, infrastructure, a
    |
    +---> [ APP COMPONENTS: Node.js/Express App ]
    |        +---> GET /health (Health Check)
-   |        +---> POST /login (Authentication)
-   |        +---> GET /api/data (REST API)
-   |        +---> GET /admin (Admin Dashboard)
+   |        +---> POST /api/login (Authentication)
+   |        +---> GET /api/events (REST API)
+   |        +---> GET /api/admin (Admin Dashboard)
+   |        +---> POST /api/register (Registration)
    |
-   +---> [ DATABASE/STORAGE: Azure PostgreSQL Flexible Server ]
+   +---> [ POSTGRESQL DATABASE:Events,users and bookings ]
    |
    +---> [ MONITORING: Azure Log Analytics Workspace ]
 
@@ -59,9 +60,9 @@ This diagram illustrates the complete flow of the application, infrastructure, a
    +---> [ APP COMPONENTS: Node.js/Express App ]
    |        +---> GET /health (Health Check)
    |        +---> POST /login (Authentication)
-   |        +---> GET /api/data (REST API)
-   |        +---> GET /admin (Admin Dashboard)
-   |
+   |        +---> GET /api/events (REST API)
+   |        +---> GET /api/admin (Admin Dashboard)
+   |        +---> POST /api/register (Registration)
    +---> [ DATABASE/STORAGE: Azure PostgreSQL Flexible Server ]
    |
    +---> [ MONITORING: Azure Log Analytics Workspace ]
