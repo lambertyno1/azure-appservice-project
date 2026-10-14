@@ -10,6 +10,11 @@ on:
 # Triggers the workflow when code is pushed to these specific branches
   push:
     branches: [ main ]
+# Runs the test job on pull requests into main (deploy jobs are skipped)
+  pull_request:
+    branches: [ main ]
+# Allows the workflow to be started manually from the Actions tab
+  workflow_dispatch:
 
 env:
   ACR_NAME: acrprojectapp.azurecr.io
@@ -29,6 +34,8 @@ jobs:
 
   build-and-push:
     needs: build-and-test
+    # Only build and push when the code is on main, not for pull requests
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
