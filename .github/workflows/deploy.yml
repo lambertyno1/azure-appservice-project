@@ -29,8 +29,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # Use Node 18 so the tests run on the same version as the Dockerfile
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      # Installs the same way the Dockerfile does (npm install, ignoring the lock file)
+      - name: Install dependencies
+        run: npm install --no-package-lock
+      # Runs the Jest tests in the tests folder. A failure stops the pipeline.
       - name: Run Tests
-        run: echo "Running automated tests..."
+        run: npm test
 
   build-and-push:
     needs: build-and-test
