@@ -33,15 +33,36 @@ const requireAdmin = (req, res, next) => {
 
 // --- 1. HEALTH CHECK (CRITICAL FOR CI/CD) ---
 app.get('/health', async (req, res) => {
+  const timestamp = new Date().toISOString();
+
   try {
     const dbStatus = await db.checkConnection();
-    res.status(200).json({ 
-      status: 'healthy', 
-      timestamp: new Date().toISOString(),
-      database: dbStatus ? 'connected' : 'disconnected'
+
+    if (!dbStatus) {
+      console.error(`[${timestamp}] Health check failed: Database disconnected`);
+
+      return res.status(503).json({
+        status: 'unhealthy',
+        timestamp,
+        database: 'disconnected'
+      });
+    }
+
+    console.log(`[${timestamp}] Health check successful`);
+
+    return res.status(200).json({
+      status: 'healthy',
+      timestamp,
+      database: 'connected'
     });
   } catch (error) {
-    res.status(503).json({ status: 'unhealthy', error: error.message });
+    console.error(`[${timestamp}] Health check error:`, error.message);
+
+    return res.status(503).json({
+      status: 'unhealthy',
+      timestamp,
+      database: 'disconnected'
+    });
   }
 });
 
