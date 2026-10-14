@@ -5,158 +5,456 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevOps Ticket Booking</title>
     <style>
-        :root { --primary: #0078d4; --bg: #f3f2f1; --card: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #323130; }
-        .container { max-width: 900px; margin: 0 auto; }
-        header { background: var(--primary); color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .card { background: var(--card); padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        h2 { color: var(--primary); margin-top: 0; }
-        button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 600; }
-        button:hover { background: #005a9e; }
-        button.secondary { background: #605e5c; }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #8a8886; border-radius: 4px; box-sizing: border-box; }
-        .event-item { border-bottom: 1px solid #edebe9; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
-        .event-item:last-child { border-bottom: none; }
-        .status { padding: 10px; border-radius: 4px; margin-top: 10px; font-weight: bold; }
-        .success { background: #dff6dd; color: #107c10; }
-        .error { background: #fde7e9; color: #a80000; }
-        .hidden { display: none; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #edebe9; }
-        th { background: #f3f2f1; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        :root { 
+            --bg-main: #0a0e27; --bg-card: #1a1f42; --text-primary: #ffffff; 
+            --text-secondary: #a0aec0; --accent-purple: #8b5cf6; --accent-pink: #ec4899; 
+            --accent-cyan: #06b6d4; --accent-green: #10b981; --accent-red: #ef4444; 
+            --border-color: #2d3561; 
+            --gradient-primary: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899); 
+            --gradient-button: linear-gradient(135deg, #3b82f6, #8b5cf6); 
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text-primary); 
+            min-height: 100vh; 
+            background-image: radial-gradient(ellipse at top left, rgba(59, 130, 246, 0.15) 0%, transparent 50%), 
+                              radial-gradient(ellipse at bottom right, rgba(139, 92, 246, 0.15) 0%, transparent 50%); 
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        header { 
+            text-align: center; margin-bottom: 3rem; padding: 2.5rem; 
+            background: linear-gradient(135deg, rgba(26, 31, 66, 0.8), rgba(34, 40, 86, 0.8)); 
+            border-radius: 20px; border: 1px solid var(--border-color); position: relative; 
+        }
+        header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-primary); border-radius: 20px 20px 0 0; }
+        header h1 { font-size: 2.8rem; font-weight: 800; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; }
+        
+        /* FIXED: Logout button now absolute positioned inside the header */
+        .logout-btn { 
+            position: absolute; top: 1.5rem; right: 1.5rem; z-index: 1000;
+            background: rgba(239, 68, 68, 0.2); border: 1px solid var(--accent-red); color: var(--accent-red); 
+            padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; 
+            font-size: 0.85rem; width: auto !important; box-shadow: none !important;
+            transition: all 0.3s ease;
+        }
+        .logout-btn:hover { 
+            background: var(--accent-red); color: white;
+            transform: translateY(-2px); box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .events-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
+        .event-card { 
+            background: var(--bg-card); border-radius: 20px; padding: 2rem; border: 1px solid var(--border-color); 
+            transition: all 0.4s ease; display: flex; flex-direction: column; justify-content: space-between; 
+        }
+        .event-card:hover { transform: translateY(-10px); border-color: var(--accent-purple); box-shadow: 0 0 30px rgba(139, 92, 246, 0.3); }
+        
+        .event-category { display: inline-block; padding: 0.3rem 0.9rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.75rem; text-transform: uppercase; }
+        .cat-education { background: rgba(16, 185, 129, 0.2); color: #34d399; } 
+        .cat-technology { background: rgba(59, 130, 246, 0.2); color: #60a5fa; } 
+        .cat-workshop { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        
+        .event-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .countdown { background: rgba(59, 130, 246, 0.1); padding: 1.2rem; border-radius: 14px; text-align: center; margin: 1.5rem 0; border: 1px solid rgba(139, 92, 246, 0.2); }
+        .countdown-time { font-size: 1.8rem; font-weight: 800; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .event-price { font-size: 1.5rem; font-weight: 800; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        button { 
+            background: var(--gradient-button); color: white; border: none; padding: 1rem 1.5rem; 
+            border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; width: 100%; font-size: 1rem; 
+        }
+        button:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(139, 92, 246, 0.4); }
+        button:active { transform: translateY(-1px); }
+        
+        .card { 
+            background: var(--bg-card); padding: 2.5rem; border-radius: 20px; border: 1px solid var(--border-color); 
+            max-width: 500px; margin: 0 auto; 
+        }
+        .card h2 { margin-bottom: 1.5rem; color: var(--text-primary); font-size: 1.8rem; font-weight: 700; text-align: center; }
+        
+        .password-wrapper { position: relative; margin-bottom: 1rem; }
+        .password-wrapper input {
+            width: 100%; padding: 1rem 3rem 1rem 1.2rem; background: var(--bg-main); 
+            border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-primary); font-size: 1rem; 
+        }
+        .password-wrapper input:focus { outline: none; border-color: var(--accent-purple); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2); }
+        .toggle-password {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: transparent; border: none; color: var(--text-secondary);
+            cursor: pointer; font-size: 1.2rem; padding: 0.3rem; width: auto; box-shadow: none;
+        }
+        .toggle-password:hover { color: var(--accent-purple); transform: translateY(-50%) scale(1.1); box-shadow: none; }
+        
+        input:not(.password-wrapper input), select { 
+            width: 100%; padding: 1rem 1.2rem; margin-bottom: 1rem; background: var(--bg-main); 
+            border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-primary); font-size: 1rem; 
+        }
+        input:not(.password-wrapper input):focus, select:focus { outline: none; border-color: var(--accent-purple); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2); }
+        
+        .auth-tabs { display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); }
+        .auth-tab { 
+            flex: 1; background: transparent; color: var(--text-secondary); border: none; 
+            border-bottom: 3px solid transparent; border-radius: 0; padding: 1rem; font-size: 1.1rem; 
+            box-shadow: none; width: auto; cursor: pointer;
+        }
+        .auth-tab:hover { background: transparent; transform: none; box-shadow: none; color: var(--text-primary); }
+        .auth-tab.active { color: var(--accent-purple); border-bottom-color: var(--accent-purple); }
+        
+        .admin-card { max-width: 100% !important; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; background: var(--bg-main); border-radius: 14px; overflow: hidden; }
+        th, td { padding: 1rem 1.2rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background: rgba(59, 130, 246, 0.2); color: var(--accent-cyan); text-transform: uppercase; font-size: 0.8rem; }
+        
+        .toast { 
+            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); 
+            background: var(--bg-card); color: var(--text-primary); padding: 1.2rem 2rem; border-radius: 14px; 
+            border: 1px solid var(--accent-red); box-shadow: 0 20px 40px rgba(0,0,0,0.5); 
+            opacity: 0; transition: all 0.4s ease; z-index: 1000; font-weight: 600; 
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.success { border-color: var(--accent-green); }
+        .hidden { display: none !important; }
+        
+        .user-badge { 
+            display: inline-flex; align-items: center; gap: 0.5rem; 
+            background: rgba(139, 92, 246, 0.2); border: 1px solid var(--accent-purple); 
+            padding: 0.6rem 1.2rem; border-radius: 20px; font-weight: 600; color: var(--accent-purple); 
+            margin-top: 1rem; font-size: 1rem;
+        }
+        
+        .section-title { 
+            font-size: 2.2rem; font-weight: 800; margin-bottom: 2rem; 
+            background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; 
+        }
+        
+        .error-msg { color: var(--accent-red); font-size: 0.9rem; margin-top: 0.5rem; text-align: center; min-height: 1.2rem; }
+        .success-msg { color: var(--accent-green); font-size: 0.95rem; margin-top: 0.5rem; text-align: center; min-height: 1.2rem; font-weight: 600; }
+        
+        .password-rules {
+            background: rgba(10, 14, 39, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+        }
+        .password-rules p { margin-bottom: 0.3rem; font-weight: 600; color: var(--text-primary); }
+        .rule { display: flex; align-items: center; gap: 0.5rem; transition: color 0.3s ease; margin-bottom: 0.2rem; }
+        .rule.valid { color: var(--accent-green); }
+        .rule.invalid { color: var(--accent-red); }
+        .rule-icon { font-size: 0.9rem; }
+        
+        .booking-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid var(--accent-green);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .booking-success h3 { color: var(--accent-green); margin-bottom: 0.5rem; }
+        
+        .no-events {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+        
+        .welcome-banner {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.15));
+            border: 1px solid var(--accent-green);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent-green);
+            transition: opacity 0.5s ease;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🎟️ DevOps Ticket Booking System</h1>
-            <p id="user-status">Please log in to book tickets</p>
+            <!-- FIXED: Button moved inside header and positioned absolute -->
+            <button id="logout-btn" class="logout-btn hidden" onclick="logout()">Logout</button>
+            <h1>DevOps Ticket Booking</h1>
+            <p>Secure, Automated, and Scalable Event Management</p>
+            <div id="user-info" class="hidden"></div>
         </header>
 
-        <!-- LOGIN -->
-        <div id="login-section" class="card">
-            <h2>🔐 Login</h2>
-            <p><i>Demo Credentials: <b>admin</b> / <b>password123</b> OR <b>user</b> / <b>password123</b></i></p>
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
-            <button onclick="login()">Login</button>
-            <div id="login-msg"></div>
-        </div>
-
-        <!-- BOOKING -->
-        <div id="booking-section" class="card hidden">
-            <h2>📅 Available Events</h2>
-            <div id="events-list">Loading events from database...</div>
+        <div id="auth-section" class="card">
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</button>
+                <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</button>
+            </div>
             
-            <h2 style="margin-top: 30px;">🎟️ Book a Ticket</h2>
-            <select id="event-select"></select>
-            <input type="text" id="booker-name" placeholder="Full Name">
-            <input type="email" id="booker-email" placeholder="Email Address">
-            <button onclick="bookTicket()">Confirm Booking</button>
-            <div id="booking-msg"></div>
+            <div id="login-form">
+                <h2>Welcome Back</h2>
+                <input type="text" id="login-username" placeholder="Username">
+                <div class="password-wrapper">
+                    <input type="password" id="login-password" placeholder="Password">
+                    <button type="button" class="toggle-password" onclick="togglePassword('login-password', this)">👁️</button>
+                </div>
+                <button id="login-btn" onclick="login()">Access Dashboard</button>
+                <div id="login-error" class="error-msg"></div>
+                <div id="login-success" class="success-msg"></div>
+            </div>
+
+            <div id="register-form" class="hidden">
+                <h2>Create Account</h2>
+                <input type="text" id="reg-username" placeholder="Choose a Username">
+                <div class="password-wrapper">
+                    <input type="password" id="reg-password" placeholder="Choose a Password" oninput="checkPasswordStrength()">
+                    <button type="button" class="toggle-password" onclick="togglePassword('reg-password', this)">👁️</button>
+                </div>
+                <div class="password-wrapper">
+                    <input type="password" id="reg-confirm" placeholder="Confirm Password" oninput="checkPasswordStrength()">
+                    <button type="button" class="toggle-password" onclick="togglePassword('reg-confirm', this)">👁️</button>
+                </div>
+                
+                <div class="password-rules" id="password-rules">
+                    <p>Password must contain:</p>
+                    <div class="rule invalid" id="rule-length"><span class="rule-icon">○</span> At least 8 characters</div>
+                    <div class="rule invalid" id="rule-letter"><span class="rule-icon">○</span> At least one letter</div>
+                    <div class="rule invalid" id="rule-number"><span class="rule-icon">○</span> At least one number</div>
+                    <div class="rule invalid" id="rule-symbol"><span class="rule-icon">○</span> At least one symbol (!@#$%^&*)</div>
+                    <div class="rule invalid" id="rule-match"><span class="rule-icon">○</span> Passwords match</div>
+                </div>
+                
+                <button id="register-btn" onclick="register()">Create Account</button>
+                <div id="register-error" class="error-msg"></div>
+                <div id="register-success" class="success-msg"></div>
+            </div>
         </div>
 
-        <!-- ADMIN DASHBOARD -->
-        <div id="admin-section" class="card hidden">
-            <h2>🛡️ Admin Dashboard</h2>
-            <p>View all database records:</p>
-            <button onclick="loadAdminData()">Refresh Database View</button>
-            <div id="admin-view"></div>
+        <div id="booking-section" class="hidden">
+            <div id="welcome-banner" class="welcome-banner hidden"></div>
+            
+            <h2 class="section-title">Upcoming Events</h2>
+            <div id="events-list" class="events-grid">
+                <div class="no-events">Loading events...</div>
+            </div>
+            
+            <div class="card" style="margin-top: 3rem;">
+                <h2>Reserve Your Seat</h2>
+                <select id="event-select">
+                    <option value="">-- Select an Event --</option>
+                </select>
+                <input type="text" id="booker-name" placeholder="Full Name">
+                <input type="email" id="booker-email" placeholder="Email Address">
+                <button onclick="bookTicket()">Confirm Booking</button>
+                <div id="booking-error" class="error-msg"></div>
+                <div id="booking-success" class="success-msg"></div>
+            </div>
+        </div>
+
+        <div id="admin-section" class="hidden" style="margin-top: 3rem;">
+            <div class="card admin-card">
+                <h2>Admin Dashboard</h2>
+                <div id="admin-view"></div>
+            </div>
         </div>
     </div>
+    <div id="toast" class="toast"></div>
 
     <script>
-        let authToken = '';
-        let userRole = '';
+        let authToken = ''; let currentUser = ''; let userRole = '';
+        
+        function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+        function getFirstName(username) { const parts = username.split(/[_\-.]/); return capitalize(parts[0]); }
+        
+        function showToast(message, type = 'error') { 
+            const toast = document.getElementById('toast'); 
+            toast.innerText = message; toast.className = `toast show ${type}`; 
+            setTimeout(() => toast.className = 'toast', 4000); 
+        }
+        
+        function switchTab(tab) { 
+            document.getElementById('tab-login').classList.toggle('active', tab === 'login'); 
+            document.getElementById('tab-register').classList.toggle('active', tab === 'register'); 
+            document.getElementById('login-form').classList.toggle('hidden', tab !== 'login'); 
+            document.getElementById('register-form').classList.toggle('hidden', tab !== 'register'); 
+            document.getElementById('login-error').innerText = ''; document.getElementById('login-success').innerText = '';
+            document.getElementById('register-error').innerText = ''; document.getElementById('register-success').innerText = '';
+        }
+
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') { input.type = 'text'; button.innerText = '🙈'; } 
+            else { input.type = 'password'; button.innerText = '👁️'; }
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+            const rules = {
+                length: password.length >= 8, letter: /[a-zA-Z]/.test(password), number: /[0-9]/.test(password),
+                symbol: /[^a-zA-Z0-9]/.test(password), match: password.length > 0 && confirm.length > 0 && password === confirm
+            };
+            for (const [key, isValid] of Object.entries(rules)) {
+                const el = document.getElementById(`rule-${key}`);
+                if (el) { el.className = `rule ${isValid ? 'valid' : 'invalid'}`; el.querySelector('.rule-icon').innerText = isValid ? '✓' : '○'; }
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('reg-username').value.trim(); 
+            const password = document.getElementById('reg-password').value; 
+            const confirm = document.getElementById('reg-confirm').value;
+            const errorDiv = document.getElementById('register-error'); const successDiv = document.getElementById('register-success');
+            const btn = document.getElementById('register-btn');
+            errorDiv.innerText = ''; successDiv.innerText = '';
+            
+            if (!username || !password || !confirm) { errorDiv.innerText = 'Please fill all fields'; return; }
+            if (password.length < 8) { errorDiv.innerText = 'Password must be at least 8 characters'; return; }
+            if (!/[a-zA-Z]/.test(password)) { errorDiv.innerText = 'Password must contain at least one letter'; return; }
+            if (!/[0-9]/.test(password)) { errorDiv.innerText = 'Password must contain at least one number'; return; }
+            if (!/[^a-zA-Z0-9]/.test(password)) { errorDiv.innerText = 'Password must contain at least one symbol'; return; }
+            if (password !== confirm) { errorDiv.innerText = 'Passwords do not match'; return; }
+            
+            btn.innerText = 'Creating Account...'; btn.style.opacity = '0.7';
+            try {
+                const res = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+                const data = await res.json();
+                if (res.ok) { 
+                    successDiv.innerText = 'Successfully registered! Redirecting to login...'; showToast('Registration successful!', 'success');
+                    document.getElementById('reg-username').value = ''; document.getElementById('reg-password').value = ''; document.getElementById('reg-confirm').value = ''; checkPasswordStrength();
+                    setTimeout(() => {
+                        switchTab('login'); document.getElementById('login-username').value = username; document.getElementById('login-password').focus();
+                        document.getElementById('login-success').innerText = 'Account created! Please login with your credentials.';
+                        btn.innerText = 'Create Account'; btn.style.opacity = '1';
+                    }, 2000);
+                } else { errorDiv.innerText = data.error || 'Registration failed'; btn.innerText = 'Create Account'; btn.style.opacity = '1'; }
+            } catch (err) { errorDiv.innerText = 'Connection error. Please try again.'; btn.innerText = 'Create Account'; btn.style.opacity = '1'; }
+        }
 
         async function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-            
-            const data = await res.json();
-            if (res.ok) {
-                authToken = data.token;
-                userRole = data.role;
-                document.getElementById('user-status').innerText = `Logged in as: ${data.username} (${data.role})`;
-                document.getElementById('login-section').classList.add('hidden');
-                document.getElementById('booking-section').classList.remove('hidden');
-                if (userRole === 'admin') document.getElementById('admin-section').classList.remove('hidden');
-                loadEvents();
-            } else {
-                showMsg('login-msg', data.error, 'error');
-            }
+            const username = document.getElementById('login-username').value.trim(); 
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('login-error'); const btn = document.getElementById('login-btn');
+            errorDiv.innerText = '';
+            if (!username || !password) { errorDiv.innerText = 'Please fill all fields'; return; }
+            btn.innerText = 'Logging in...'; btn.style.opacity = '0.7';
+            try {
+                const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+                const data = await res.json();
+                if (res.ok) {
+                    authToken = data.token; currentUser = data.username; userRole = data.role;
+                    const firstName = getFirstName(data.username);
+                    document.getElementById('auth-section').classList.add('hidden'); 
+                    document.getElementById('booking-section').classList.remove('hidden'); 
+                    document.getElementById('logout-btn').classList.remove('hidden');
+                    const userInfo = document.getElementById('user-info'); 
+                    userInfo.className = `user-badge`; userInfo.innerHTML = `${data.role === 'admin' ? '🛡️' : '👤'} ${firstName}`; userInfo.classList.remove('hidden');
+                    
+                    const welcomeBanner = document.getElementById('welcome-banner');
+                    welcomeBanner.innerText = `Welcome, ${firstName}! Happy to see you again.`;
+                    welcomeBanner.classList.remove('hidden');
+                    
+                    // FIXED: Auto-hide welcome message after 5 seconds
+                    setTimeout(() => {
+                        welcomeBanner.classList.add('hidden');
+                    }, 5000);
+
+                    if (data.role === 'admin') {
+                        document.getElementById('admin-section').classList.remove('hidden');
+                        loadAdminData();
+                        if (window.adminInterval) clearInterval(window.adminInterval);
+                        window.adminInterval = setInterval(loadAdminData, 3000);
+                    }
+                    loadEvents(); showToast(`Welcome ${firstName}!`, 'success');
+                    btn.innerText = 'Access Dashboard'; btn.style.opacity = '1';
+                } else { errorDiv.innerText = data.error || 'Login failed'; btn.innerText = 'Access Dashboard'; btn.style.opacity = '1'; }
+            } catch (err) { errorDiv.innerText = 'Connection error. Please try again.'; btn.innerText = 'Access Dashboard'; btn.style.opacity = '1'; }
+        }
+
+        function logout() { 
+            if (window.adminInterval) clearInterval(window.adminInterval);
+            authToken = ''; currentUser = ''; userRole = ''; 
+            document.getElementById('auth-section').classList.remove('hidden'); 
+            document.getElementById('booking-section').classList.add('hidden'); 
+            document.getElementById('admin-section').classList.add('hidden'); 
+            document.getElementById('logout-btn').classList.add('hidden'); 
+            document.getElementById('user-info').classList.add('hidden'); 
+            document.getElementById('welcome-banner').classList.add('hidden');
+            document.getElementById('login-username').value = ''; document.getElementById('login-password').value = '';
+            document.getElementById('events-list').innerHTML = '<div class="no-events">Loading events...</div>';
+            document.getElementById('event-select').innerHTML = '<option value="">-- Select an Event --</option>';
+            showToast('Logged out successfully', 'success'); 
         }
 
         async function loadEvents() {
-            const res = await fetch('/api/events');
-            const data = await res.json();
-            const list = document.getElementById('events-list');
-            const select = document.getElementById('event-select');
-            
-            list.innerHTML = '';
-            select.innerHTML = '<option value="">-- Select an Event --</option>';
-            
-            data.data.forEach(event => {
-                list.innerHTML += `<div class="event-item"><div><strong>${event.name}</strong><br><small>${event.date}</small></div><div>${event.availableSeats} seats left</div></div>`;
-                select.innerHTML += `<option value="${event.id}">${event.name} (${event.availableSeats} left)</option>`;
-            });
+            const list = document.getElementById('events-list'); const select = document.getElementById('event-select');
+            try {
+                const res = await fetch('/api/events'); const data = await res.json();
+                if (!res.ok) { list.innerHTML = '<div class="no-events">Failed to load events.</div>'; return; }
+                if (!data.data || data.data.length === 0) { list.innerHTML = '<div class="no-events">No events available</div>'; return; }
+                list.innerHTML = ''; select.innerHTML = '<option value="">-- Select an Event --</option>';
+                data.data.forEach(event => {
+                    const catClass = event.category ? `cat-${event.category.toLowerCase()}` : '';
+                    list.innerHTML += `<div class="event-card"><div><span class="event-category ${catClass}">${event.category}</span><div class="event-title">${event.name}</div><div style="color: var(--text-secondary); font-size: 0.9rem;">${event.date}</div></div><div class="countdown"><div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.3rem;">Starts In</div><div class="countdown-time" id="timer-${event.id}">Calculating...</div></div><div style="display:flex; justify-content:space-between; align-items:center;"><div class="event-price">$${event.price}</div><div style="color:var(--text-secondary)"><strong style="color: var(--accent-cyan);">${event.availableSeats}</strong> seats left</div></div></div>`;
+                    select.innerHTML += `<option value="${event.id}">${event.name} - $${event.price} (${event.availableSeats} seats)</option>`;
+                });
+                startCountdowns(data.data);
+            } catch (err) { list.innerHTML = '<div class="no-events">Network error.</div>'; }
+        }
+
+        function startCountdowns(events) { 
+            setInterval(() => { 
+                events.forEach(event => { 
+                    const distance = new Date(`${event.date}T18:00:00`).getTime() - new Date().getTime(); 
+                    const el = document.getElementById(`timer-${event.id}`); 
+                    if (distance < 0) { if(el) el.innerText = "Started!"; return; } 
+                    const d = Math.floor(distance / (1000 * 60 * 60 * 24)); const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); 
+                    const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)); const s = Math.floor((distance % (1000 * 60)) / 1000); 
+                    if(el) el.innerText = `${d}d ${h}h ${m}m ${s}s`; 
+                }); 
+            }, 1000); 
         }
 
         async function bookTicket() {
-            const eventId = parseInt(document.getElementById('event-select').value);
-            const userName = document.getElementById('booker-name').value;
-            const userEmail = document.getElementById('booker-email').value;
-            
-            if(!eventId || !userName || !userEmail) return showMsg('booking-msg', 'Please fill all fields', 'error');
-
-            const res = await fetch('/api/bookings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                body: JSON.stringify({ eventId, userName, userEmail })
-            });
-
-            const data = await res.json();
-            if (res.ok) {
-                showMsg('booking-msg', `Success! Booking confirmed for ${data.data.eventName}`, 'success');
-                loadEvents();
-            } else {
-                showMsg('booking-msg', data.error, 'error');
-            }
+            const eventId = parseInt(document.getElementById('event-select').value); 
+            const userName = document.getElementById('booker-name').value.trim(); 
+            const userEmail = document.getElementById('booker-email').value.trim();
+            const errorDiv = document.getElementById('booking-error'); const successDiv = document.getElementById('booking-success');
+            errorDiv.innerText = ''; successDiv.innerText = '';
+            if(!eventId) { errorDiv.innerText = 'Please select an event'; return; }
+            if(!userName || !userEmail) { errorDiv.innerText = 'Please fill all fields'; return; }
+            const lastBookingTime = localStorage.getItem(`lastBooking_${currentUser}`); const now = Date.now();
+            if (lastBookingTime && (now - parseInt(lastBookingTime)) < 300000) { errorDiv.innerText = 'Please wait 5 mins to book again'; return; }
+            try {
+                const res = await fetch('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }, body: JSON.stringify({ eventId, userName, userEmail }) });
+                const data = await res.json();
+                if (res.ok) { 
+                    localStorage.setItem(`lastBooking_${currentUser}`, now); const firstName = getFirstName(currentUser);
+                    successDiv.innerHTML = `<div class="booking-success"><h3>Booking Successful!</h3><p style="margin: 0.5rem 0;"><strong>Event:</strong> ${data.data.eventName}</p><p style="margin: 0.5rem 0;"><strong>Category:</strong> ${data.data.category}</p><p style="margin: 0.5rem 0;"><strong>Price:</strong> $${data.data.price}</p><p style="margin: 0.5rem 0;"><strong>Booked for:</strong> ${userName}</p><p style="margin: 0.5rem 0; color: var(--accent-green);"><strong>Confirmation sent to:</strong> ${userEmail}</p></div>`;
+                    
+                    // Auto-hide booking success after 2 seconds
+                    setTimeout(() => { successDiv.innerHTML = ''; }, 2000);
+                    
+                    showToast(`Great choice, ${firstName}!`, 'success'); loadEvents();
+                    document.getElementById('booker-name').value = ''; document.getElementById('booker-email').value = ''; document.getElementById('event-select').value = '';
+                } else { errorDiv.innerText = data.error || 'Booking failed'; }
+            } catch (err) { errorDiv.innerText = 'Network error. Please try again.'; }
         }
 
         async function loadAdminData() {
-            const res = await fetch('/api/admin/bookings', {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            });
+            const res = await fetch('/api/admin/bookings', { headers: { 'Authorization': `Bearer ${authToken}` } }); 
             const data = await res.json();
-            
-            if (res.ok) {
-                let html = `<p>Total Bookings in DB: <strong>${data.totalBookings}</strong></p>`;
-                if (data.data.length > 0) {
-                    html += `<table><tr><th>ID</th><th>User</th><th>Event</th><th>Date</th></tr>`;
-                    data.data.forEach(b => {
-                        html += `<tr><td>${b.id}</td><td>${b.userName}</td><td>${b.eventName}</td><td>${b.bookedAt}</td></tr>`;
-                    });
-                    html += `</table>`;
-                } else {
-                    html += `<p>No bookings yet.</p>`;
-                }
-                document.getElementById('admin-view').innerHTML = html;
-            } else {
-                document.getElementById('admin-view').innerHTML = `<div class="status error">${data.error}</div>`;
+            if (res.ok) { 
+                let html = `<p style="margin-bottom:1rem;">Total Bookings: <strong style="color:var(--accent-cyan)">${data.totalBookings}</strong></p>`; 
+                if (data.data.length > 0) { 
+                    html += `<table><tr><th>User</th><th>Event</th><th>Price</th></tr>`; 
+                    data.data.forEach(b => { html += `<tr><td>${b.userName}</td><td>${b.eventName}</td><td>$${b.price}</td></tr>`; }); 
+                    html += `</table>`; 
+                } 
+                document.getElementById('admin-view').innerHTML = html; 
             }
-        }
-
-        function showMsg(id, text, type) {
-            const el = document.getElementById(id);
-            el.innerText = text;
-            el.className = `status ${type}`;
         }
     </script>
 </body>
