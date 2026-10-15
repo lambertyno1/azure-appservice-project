@@ -67,7 +67,6 @@ jobs:
   swap-to-production:
     needs: deploy-staging
     runs-on: ubuntu-latest
-    timeout_minutes: 30
 
     steps:
       - name: Azure Login
